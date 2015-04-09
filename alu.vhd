@@ -36,6 +36,7 @@ oper : in STD_LOGIC_VECTOR (5 downto 0);
 a : in STD_LOGIC_VECTOR (7 downto 0);
 b : in STD_LOGIC_VECTOR (7 downto 0);
 res: out STD_LOGIC_VECTOR (7 downto 0);
+res2: out STD_LOGIC_VECTOR (15 downto 0);
 sf : out STD_LOGIC;
 zf : out STD_LOGIC;
 cf : out STD_LOGIC;
@@ -48,6 +49,8 @@ begin
 process (a,b,oper)
 variable temp: STD_LOGIC_VECTOR (8 downto 0);
 variable resv: STD_LOGIC_VECTOR (7 downto 0);
+variable resv2: STD_LOGIC_VECTOR (15 downto 0);
+
 variable cfv, zfv: STD_LOGIC;
 begin
 cf <= '0';
@@ -55,31 +58,45 @@ ovf <= '0';
 zfv := '0';
 temp := "000000000";
 case oper is
-when "000000" =>
+--dodawanie
+when "000000" | "000001" | "000010" =>
 temp := ('0' & a) + ('0' & b);
 resv := temp(7 downto 0);
 cfv := temp(8);
 ovf <= resv(7) xor a(7) xor b(7) xor cfv;
 cf<=cfv;
-when "000110" =>
+--dodawanie +1
+when "000100" | "000101" | "000110" =>
+temp := ('0' & a) + ('0' & b);
+resv := temp(7 downto 0);
+cfv := temp(8);
+ovf <= resv(7) xor a(7) xor b(7) xor cfv;
+cf<=cfv;
+--inkrementacja
+when "001000" =>
 temp := ('0' & a) + 1;
 resv := temp(7 downto 0);
 cfv := temp(8);
 ovf <= resv(7) xor a(7) xor b(7) xor cfv;
 cf<=cfv;
-when "000111" =>
+--dekrementacja
+when "001001" =>
 temp := ('0' & a) - 1;
 resv := temp (7 downto 0);
 cfv := temp(8);
 ovf <= resv(7) xor a(7) xor b(7) xor cfv;
-when "001000" =>
+--odejmowanie
+when "001100" | "001101" | "001110"  =>
 temp := ('0' & a) - ('0' & b);
 resv := temp (7 downto 0);
 cfv := temp(8);
 ovf <= resv(7) xor a(7) xor b(7) xor cfv;
-
+--mnozenie
+when "010000" =>
+resv2 := a*b;
 when others =>
 resv := a;
+resv2:= ("00000000" & a);
 end case;
 
 for i in 0 to 7 loop
@@ -88,6 +105,7 @@ end loop;
 res <= resv;
 zf <= not zfv;
 sf <= resv(7);
+res2 <= resv2;
 end process;
 
 end Behavioral;
