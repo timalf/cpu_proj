@@ -94,6 +94,68 @@ ovf <= resv(7) xor a(7) xor b(7) xor cfv;
 --mnozenie
 when "010000" =>
 resv2 := a*b;
+--and
+when "011100" | "011101" | "011110" =>
+resv:=a and b;
+--or
+when "100000" | "100001" | "100010" =>
+resv:=a or b;
+--xor
+when "100100" | "100101" | "100110" =>
+resv:= a xor b;
+--not
+when "101100" =>
+resv:= not a;
+--greater than
+when "101000" | "101001" | "101010" | "101011" =>
+resv:= "00000000";
+if(a=0) then
+sf <= '0';
+cf <= '0';
+zf <= '0';
+else 
+if (a /= 0) then
+sf <= '0';
+cf <= '0';
+zf <= '1';
+else 
+if (a /= b) then
+sf <= '0';
+cf <= '1';
+zf <= '0';
+else 
+if (a = b) then
+sf <= '0';
+cf <= '1';
+zf <= '1';
+else 
+if (a <= b) then
+sf <= '1';
+cf <= '0';
+zf <= '0';
+else 
+if (a >= b) then
+sf <= '1';
+cf <= '0';
+zf <= '1';
+else 
+if (a < b) then
+sf <= '1';
+cf <= '1';
+zf <= '0';
+else 
+if (a > b) then
+sf <= '1';
+cf <= '1';
+zf <= '1';
+end if;
+end if;
+end if;
+end if;
+end if;
+end if; 
+end if;
+end if;
 when others =>
 resv := a;
 resv2:= ("00000000" & a);
