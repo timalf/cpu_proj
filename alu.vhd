@@ -39,8 +39,7 @@ res: out STD_LOGIC_VECTOR (7 downto 0);
 res2: out STD_LOGIC_VECTOR (15 downto 0);
 sf : out STD_LOGIC;
 zf : out STD_LOGIC;
-cf : out STD_LOGIC;
-ovf: out STD_LOGIC
+cf : out STD_LOGIC
 );
 end alu;
 
@@ -48,14 +47,17 @@ architecture Behavioral of alu is
 begin
 process (a,b,oper)
 variable temp: STD_LOGIC_VECTOR (8 downto 0);
+variable temp2: STD_LOGIC_VECTOR (8 downto 0);
 variable resv: STD_LOGIC_VECTOR (7 downto 0);
 variable resv2: STD_LOGIC_VECTOR (15 downto 0);
 
 variable cfv, zfv: STD_LOGIC;
 begin
 cf <= '0';
-ovf <= '0';
 zfv := '0';
+cfv := '0';
+zf <='0';
+sf <= '0';
 temp := "000000000";
 case oper is
 --dodawanie
@@ -63,37 +65,41 @@ when "000000" | "000001" | "000010" =>
 temp := ('0' & a) + ('0' & b);
 resv := temp(7 downto 0);
 cfv := temp(8);
-ovf <= resv(7) xor a(7) xor b(7) xor cfv;
 cf<=cfv;
 --dodawanie +1
 when "000100" | "000101" | "000110" =>
-temp := ('0' & a) + ('0' & b);
+temp := ('0' & a) + ('0' & b) +1;
 resv := temp(7 downto 0);
 cfv := temp(8);
-ovf <= resv(7) xor a(7) xor b(7) xor cfv;
 cf<=cfv;
 --inkrementacja
 when "001000" =>
 temp := ('0' & a) + 1;
 resv := temp(7 downto 0);
 cfv := temp(8);
-ovf <= resv(7) xor a(7) xor b(7) xor cfv;
 cf<=cfv;
 --dekrementacja
 when "001001" =>
-temp := ('0' & a) - 1;
+temp2:= ('1' & a);
+temp := temp2 - 1;
 resv := temp (7 downto 0);
-cfv := temp(8);
-ovf <= resv(7) xor a(7) xor b(7) xor cfv;
+cfv := not(temp(8));
 --odejmowanie
 when "001100" | "001101" | "001110"  =>
-temp := ('0' & a) - ('0' & b);
+temp2:= ('1' & a);
+temp := temp2 - ('0' & b);
 resv := temp (7 downto 0);
-cfv := temp(8);
-ovf <= resv(7) xor a(7) xor b(7) xor cfv;
+cfv := not(temp(8));
+--odejmowanie -1
+when "110100" | "110101" | "110110"  =>
+temp2:= ('1' & a);
+temp := temp2 - ('0' & b) -1;
+resv := temp (7 downto 0);
+cfv := not(temp(8));
 --mnozenie
 when "010000" =>
 resv2 := a*b;
+resv := a*b;
 --and
 when "011100" | "011101" | "011110" =>
 resv:=a and b;
@@ -109,64 +115,65 @@ resv:= not a;
 --greater than
 when "101000" | "101001" | "101010" | "101011" =>
 resv:= "00000000";
-if(a=0) then
-sf <= '0';
-cf <= '0';
-zf <= '0';
-else 
-if (a /= 0) then
-sf <= '0';
-cf <= '0';
-zf <= '1';
-else 
-if (a /= b) then
-sf <= '0';
-cf <= '1';
-zf <= '0';
-else 
-if (a = b) then
-sf <= '0';
-cf <= '1';
-zf <= '1';
-else 
-if (a <= b) then
-sf <= '1';
-cf <= '0';
-zf <= '0';
-else 
-if (a >= b) then
-sf <= '1';
-cf <= '0';
-zf <= '1';
-else 
-if (a < b) then
-sf <= '1';
-cf <= '1';
-zf <= '0';
-else 
-if (a > b) then
-sf <= '1';
-cf <= '1';
-zf <= '1';
-end if;
-end if;
-end if;
-end if;
-end if;
-end if; 
-end if;
-end if;
+
+--if(a=b and b=0) then
+--sf <= '0';
+--cf <= '0';
+--zf <= '0';
+--else 
+--if (a=b and b/=0 and a/=0) then
+--sf <= '0';
+--cf <= '0';
+--zf <= '1';
+--else 
+--if (a /= b) then
+--sf <= '0';
+--cf <= '1';
+--zf <= '0';
+--else 
+--if (a = b) then
+--sf <= '0';
+--cf <= '1';
+--zf <= '1';
+--else 
+--if (a <= b) then
+--sf <= '1';
+--cf <= '0';
+--zf <= '0';
+--else 
+--if (a >= b) then
+--sf <= '1';
+--cf <= '0';
+--zf <= '1';
+--else 
+--if (a < b) then
+--sf <= '1';
+--cf <= '1';
+--zf <= '0';
+--else 
+--if (a > b) then
+--sf <= '1';
+--cf <= '1';
+--zf <= '1';
+--end if;
+--end if;
+--end if;
+--end if;
+--end if;
+--end if; 
+--end if;
+--end if;
 when others =>
 resv := a;
 resv2:= ("00000000" & a);
 end case;
-
 for i in 0 to 7 loop
 zfv := zfv or resv(i);
 end loop;
 res <= resv;
 zf <= not zfv;
-sf <= resv(7);
+cf <= cfv;
+--sf <= resv(7);
 res2 <= resv2;
 end process;
 
