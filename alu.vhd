@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    14:39:33 04/09/2015 
+-- Create Date:    10:27:10 04/11/2015 
 -- Design Name: 
--- Module Name:    alu - Behavioral 
+-- Module Name:    alutestbench - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -19,7 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_unsigned.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -30,152 +30,58 @@ use IEEE.STD_LOGIC_unsigned.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity alu is
-port (
-oper : in STD_LOGIC_VECTOR (5 downto 0);
-a : in STD_LOGIC_VECTOR (7 downto 0);
-b : in STD_LOGIC_VECTOR (7 downto 0);
-res: out STD_LOGIC_VECTOR (7 downto 0);
-res2: out STD_LOGIC_VECTOR (15 downto 0);
-sf : out STD_LOGIC;
-zf : out STD_LOGIC;
-cf : out STD_LOGIC
-);
-end alu;
+ENTITY alutestbench IS
+END alutestbench;
 
-architecture Behavioral of alu is
-begin
-process (a,b,oper)
-variable temp: STD_LOGIC_VECTOR (8 downto 0);
-variable temp2: STD_LOGIC_VECTOR (8 downto 0);
-variable resv: STD_LOGIC_VECTOR (7 downto 0);
-variable resv2: STD_LOGIC_VECTOR (15 downto 0);
+ARCHITECTURE behavior OF alutestbench IS 
 
-variable cfv, zfv: STD_LOGIC;
-begin
-cf <= '0';
-zfv := '0';
-cfv := '0';
-zf <='0';
-sf <= '0';
-temp := "000000000";
-case oper is
---dodawanie
-when "000000" | "000001" | "000010" =>
-temp := ('0' & a) + ('0' & b);
-resv := temp(7 downto 0);
-cfv := temp(8);
-cf<=cfv;
---dodawanie +1
-when "000100" | "000101" | "000110" =>
-temp := ('0' & a) + ('0' & b) +1;
-resv := temp(7 downto 0);
-cfv := temp(8);
-cf<=cfv;
---inkrementacja
-when "001000" =>
-temp := ('0' & a) + 1;
-resv := temp(7 downto 0);
-cfv := temp(8);
-cf<=cfv;
---dekrementacja
-when "001001" =>
-temp2:= ('1' & a);
-temp := temp2 - 1;
-resv := temp (7 downto 0);
-cfv := not(temp(8));
---odejmowanie
-when "001100" | "001101" | "001110"  =>
-temp2:= ('1' & a);
-temp := temp2 - ('0' & b);
-resv := temp (7 downto 0);
-cfv := not(temp(8));
---odejmowanie -1
-when "110100" | "110101" | "110110"  =>
-temp2:= ('1' & a);
-temp := temp2 - ('0' & b) -1;
-resv := temp (7 downto 0);
-cfv := not(temp(8));
---mnozenie
-when "010000" =>
-resv2 := a*b;
-resv := a*b;
---and
-when "011100" | "011101" | "011110" =>
-resv:=a and b;
---or
-when "100000" | "100001" | "100010" =>
-resv:=a or b;
---xor
-when "100100" | "100101" | "100110" =>
-resv:= a xor b;
---not
-when "101100" =>
-resv:= not a;
---greater than
-when "101000" | "101001" | "101010" | "101011" =>
-resv:= "00000000";
+   signal Clk : std_logic := '0';
+   signal a,b,res : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+   signal sf,cf,zf : STD_LOGIC :='0';
+	signal oper : STD_LOGIC_VECTOR(5 downto 0) := (others => '0');
+   constant Clk_period : time := 10 ns;
 
---if(a=b and b=0) then
---sf <= '0';
---cf <= '0';
---zf <= '0';
---else 
---if (a=b and b/=0 and a/=0) then
---sf <= '0';
---cf <= '0';
---zf <= '1';
---else 
---if (a /= b) then
---sf <= '0';
---cf <= '1';
---zf <= '0';
---else 
---if (a = b) then
---sf <= '0';
---cf <= '1';
---zf <= '1';
---else 
---if (a <= b) then
---sf <= '1';
---cf <= '0';
---zf <= '0';
---else 
---if (a >= b) then
---sf <= '1';
---cf <= '0';
---zf <= '1';
---else 
---if (a < b) then
---sf <= '1';
---cf <= '1';
---zf <= '0';
---else 
---if (a > b) then
---sf <= '1';
---cf <= '1';
---zf <= '1';
---end if;
---end if;
---end if;
---end if;
---end if;
---end if; 
---end if;
---end if;
-when others =>
-resv := a;
-resv2:= ("00000000" & a);
-end case;
-for i in 0 to 7 loop
-zfv := zfv or resv(i);
-end loop;
-res <= resv;
-zf <= not zfv;
-cf <= cfv;
---sf <= resv(7);
-res2 <= resv2;
-end process;
+BEGIN
 
-end Behavioral;
+    -- Instantiate the Unit Under Test (UUT)
+   uut: entity work.alu PORT MAP (
+          a => a,
+          b => b,
+          oper => oper,
+          res => res,
+			 sf => sf,
+			 cf => cf,
+			 zf => zf
+        );
+
+   Clk_process :process
+   begin
+        Clk <= '0';
+        wait for Clk_period/2;
+        Clk <= '1';
+        wait for Clk_period/2;
+   end process;
+	
+   stim_proc: process
+   begin 
+	wait for Clk_period*1;
+        a <= "01010010"; 
+        b <= "11001010"; 
+		  --wait for Clk_period;
+        oper <= "000000";  wait for Clk_period;-- +
+        oper <= "000100";  wait for Clk_period;-- +1
+        oper <= "001000";  wait for Clk_period;-- inc
+        oper <= "001001";  wait for Clk_period;-- dec
+        oper <= "001100";  wait for Clk_period;-- -
+        oper <= "010000";  wait for Clk_period;-- *
+        oper <= "011100";  wait for Clk_period;-- and
+        oper <= "100000";  wait for Clk_period; -- or
+		  oper <= "100100";  wait for Clk_period;-- xor
+		  oper <= "101100";  wait for Clk_period;-- not
+		  oper <= "110100";  wait for Clk_period;-- -1
+
+      wait;
+   end process;
+
+end behavior;
 
