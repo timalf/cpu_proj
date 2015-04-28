@@ -36,25 +36,24 @@ END alutestbench;
 ARCHITECTURE behavior OF alutestbench IS 
 
    signal Clk : std_logic := '0';
-   signal a,b,res : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
-   signal sf,cf,zf : STD_LOGIC :='0';
+   signal a,b,res,res2 : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+   signal sf,cf,zf,ovf : STD_LOGIC :='0';
 	signal oper : STD_LOGIC_VECTOR(5 downto 0) := (others => '0');
-   constant Clk_period : time := 10 ns;
-
+   constant Clk_period : time := 1 ns;
 BEGIN
 
     -- Instantiate the Unit Under Test (UUT)
    uut: entity work.alu PORT MAP (
-          --Clk => Clk,
           a => a,
           b => b,
           oper => oper,
           res => res,
 			 sf => sf,
 			 cf => cf,
-			 zf => zf
+			 zf => zf,
+			 ovf => ovf
         );
-   -- Clock process definitions
+
    Clk_process :process
    begin
         Clk <= '0';
@@ -65,10 +64,12 @@ BEGIN
 	
    stim_proc: process
    begin 
+	a<= "00000000";
+	b<= "00000000";
 	wait for Clk_period*1;
-        a <= "10010010"; 
-        b <= "10001010"; 
-		  --wait for Clk_period;
+	for I in 0 to 256 loop
+			for J in 0 to 256 loop 
+    		  wait for Clk_period;
         oper <= "000000";  wait for Clk_period;-- +
         oper <= "000100";  wait for Clk_period;-- +1
         oper <= "001000";  wait for Clk_period;-- inc
@@ -80,7 +81,18 @@ BEGIN
 		  oper <= "100100";  wait for Clk_period;-- xor
 		  oper <= "101100";  wait for Clk_period;-- not
 		  oper <= "110100";  wait for Clk_period;-- -1
-
+		  oper <= "101000"; 	wait for Clk_period;-- 
+		  oper <= "101001"; 	wait for Clk_period;-- 
+		  oper <= "101010"; 	wait for Clk_period;-- 
+		  oper <= "101011"; 	wait for Clk_period;-- 
+		  oper <= "101101"; 	wait for Clk_period;-- 
+		  oper <= "101110"; 	wait for Clk_period;-- 
+		  oper <= "101111"; 	wait for Clk_period;-- 
+		  oper <= "110000"; 	wait for Clk_period;-- 
+		  b <= std_logic_vector( unsigned(b) + 1 );
+end loop;
+a <= std_logic_vector( unsigned(a) + 1 );
+end loop;
       wait;
    end process;
 
