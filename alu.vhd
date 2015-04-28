@@ -59,9 +59,10 @@ zfv := '0';
 cfv := '0';
 zf <='0';
 sf <= '0';
+ovf <= '0';
 temp := "000000000";
-case oper is
---dodawanie
+case oper is 
+--dodawanie 
 when "000000" | "000001" | "000010" =>
 temp := ('0' & a) + ('0' & b);
 resv := temp(7 downto 0);
@@ -94,7 +95,7 @@ when "001000" =>
 temp := ('0' & a) + 1;
 resv := temp(7 downto 0);
 cfv := temp(8);
-ovf <= resv(7) xor a(7) xor b(7) xor cfv;
+ovf <= resv(7) xor a(7) xor cfv;
 cf<=cfv;
 
 for i in 0 to 7 loop
@@ -109,6 +110,7 @@ temp2:= ('1' & a);
 temp := temp2 - 1;
 resv := temp (7 downto 0);
 cfv := not(temp(8));
+ovf <= resv(7) xor a(7) xor cfv;
 
 for i in 0 to 7 loop
 zfv := zfv or resv(i);
@@ -149,6 +151,7 @@ sf <= resv(7);
 when "010000" =>
 resv2 := a*b;
 sf <= resv2(15);
+res2<= resv2;
 for i in 0 to 15 loop
 zfv := zfv or resv2(i);
 end loop;
@@ -169,17 +172,54 @@ res <= resv;
 when "101100" =>
 resv:= not a;
 res <= resv;
---greater than
-when "101000" | "101001" | "101010" | "101011" =>
+
+when "101000" => --JL
 if (a<b) then
 resv:= "00000001";
-elsif (a>b) then
-resv:= "00000010";
-elsif (a=b and (a/=0 or b/=0)) then
-resv:= "00000011";
-elsif (a=b and a=0) then
-resv:= "00000100";
+else resv:="00000000";
 end if;
+when "101001" => --JLE
+if (a<=b) then
+resv:= "00000001";
+else resv:="00000000";
+end if;
+
+when "101010" => --JE
+if (a=b) then
+resv:= "00000001";
+else resv:="00000000";
+end if;
+
+when "101011" => --JNE
+if (a/=b) then
+resv:= "00000001";
+else resv:="00000000";
+end if;
+
+when "101101" => --JG
+if (a>b) then
+resv:= "00000001";
+else resv:="00000000";
+end if;
+
+when "101110" => --JGE
+if (a>=b) then
+resv:= "00000001";
+else resv:="00000000";
+end if;
+
+when "101111" => --JZ
+if (a="00000000") then
+resv:= "00000001";
+else resv:="00000000";
+end if;
+
+when "110000" => --JNZ
+if (a/="00000000") then
+resv:= "00000001";
+else resv:="00000000";
+end if;
+
 when others =>
 resv := a;
 resv2:= ("00000000" & a);
