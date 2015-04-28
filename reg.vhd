@@ -51,8 +51,10 @@ begin
     begin
         if(IO(i) = '1') then
           rejestry(i) <= input(i);
+			 else
+			 output(i) <= rejestry(i);
         end if;
     end process;
-    output(i) <= rejestry(i) when IO(i)='0' else input(i);
+   -- output(i) <= rejestry(i) when IO(i)='0' else input(i);
   end generate regs;
 end Behavioral;
