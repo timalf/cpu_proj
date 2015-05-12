@@ -51,7 +51,8 @@ BEGIN
 			 sf => sf,
 			 cf => cf,
 			 zf => zf,
-			 ovf => ovf
+			 ovf => ovf,
+			 Clk => CLK
         );
 
    Clk_process :process
