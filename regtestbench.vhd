@@ -38,79 +38,76 @@ ARCHITECTURE behavior OF reg_tb IS
  
 -- Component Declaration for the Unit Under Test (UUT)
  
-  component reg
-  port(
-    IO: in rejIO;
-    input: in rejdane;
-   -- Clock: in std_logic;
-    output: out rejdane
-  );
-  end component;
+--  component reg
+--  port(
+--    CLK	    : in  std_logic;
+--    RegWrite : in  std_logic;
+--    Rx       : in  std_logic_vector(1 downto 0);
+--    wData    : in  std_logic_vector(7 downto 0);
+--    
+--    R0_out   : out std_logic_vector(7 downto 0);
+--    R1_out   : out std_logic_vector(7 downto 0);
+--    R2_out   : out std_logic_vector(7 downto 0);
+--    R3_out   : out std_logic_vector(7 downto 0)
+--  );
+--  end component;
  
  
   --Inputs
-  signal IO : rejIO := (others => '0');
-  signal input: rejdane := (others => "00000000");
+  signal RegWrite : std_logic;
+  signal Rx : std_logic_vector(1 downto 0); 
+    signal wData : std_logic_vector(7 downto 0); 
  
   --Outputs
-  signal output: rejdane := (others => "00000000");
+    signal R0_out   :  std_logic_vector(7 downto 0);
+   signal R1_out   :  std_logic_vector(7 downto 0);
+   signal R2_out   :  std_logic_vector(7 downto 0);
+   signal R3_out   :  std_logic_vector(7 downto 0);
  
-  signal Clock: std_logic := '0';
-  constant clock_period : time := 1 ns;
+  signal  CLK : std_logic := '0';
+  constant CLK_period : time := 1 ns;
  
 BEGIN
 
  
   -- Instantiate the Unit Under Test (UUT)
-  uut: reg PORT MAP (
-    IO => IO,
-    input => input,
-    --Clock => Clock,
-    output => output
+  uut: entity work.reg PORT MAP (
+    CLK => CLK,
+    RegWrite => RegWrite,
+    Rx => Rx,
+	 wData => wData,
+	 R0_out => R0_out,
+	 R1_out => R1_out,
+	 R2_out => R2_out,
+	 R3_out => R3_out
   );
  
   -- Clock process definitions
-  clock_process :process
+  CLK_process: process
   begin
-    Clock <= '0';
-    wait for clock_period/2;
-    Clock <= '1';
-    wait for clock_period/2;
+    CLK <= '0';
+    wait for CLK_period/2;
+    CLK <= '1';
+    wait for CLK_period/2;
   end process;
  
  
   -- Stimulus process
   stim_proc: process
   begin		 
-    wait for clock_period*10;
- 
-    IO(0) <= '1';
-    input(0) <= "11110000";
+    wait for CLK_period*1;
+	
+	 Rx <= "00";
+	 wData <="00110011";
+    RegWrite <= '1';
+	 
     wait for 10 ns;
-    IO(0) <= '0';
+    RegWrite <= '0';
     wait for 10 ns;
     --assert (output(0)=input(0));
  
-    -- case 2 
-    IO(3) <= '1';
-    input(3) <= input(0); 
-    wait for 10 ns;
-    IO(3) <= '0';
-    wait for 10 ns;
-    assert (output(3)=input(3));
- 
-    -- case 3;
-    wait for 10 ns;
-    assert (output(2)="11110000");
- 
-    --case 4
-	 wait for 10 ns;
-    IO(0) <= '0';
-    input(0) <= "11111111";
-	 wait for 10 ns;
-    IO(0) <= '1';
-    assert (output(0)= input(0));
- 
+
+
  
  
  
