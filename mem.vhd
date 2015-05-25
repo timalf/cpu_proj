@@ -9,10 +9,11 @@ use ieee.std_logic_unsigned.all;
 use work.all;
 
 entity memory is
-port ( 	clock	: 	in std_logic;
+port ( 	
+		clock	: 	in std_logic;
 		rst		: 	in std_logic;
-		Mre		:	in std_logic;
-		Mwe		:	in std_logic;
+		Mre		:	in std_logic;	--read enable
+		Mwe		:	in std_logic;	--write enable
 		address	:	in std_logic_vector(7 downto 0);
 		data_in	:	in std_logic_vector(7 downto 0);
 		data_out:	out std_logic_vector(7 downto 0)
@@ -25,11 +26,8 @@ architecture behv of memory is
         		std_logic_vector(7 downto 0);
   signal tmp_ram: ram_type;
 
-begin
-	
-
-							
-	write: process(clock, rst, Mre, address, data_in)
+begin					
+	write: process(clock, rst, Mre, Mwe, address, data_in)
 	begin
 		if rst='1' then		
 			tmp_ram <= 
@@ -49,7 +47,7 @@ begin
 		end if;
 	end process;
 
-    read: process(clock, rst, Mwe, address)
+    read: process(clock, rst, Mwe, Mre, address)
 	begin
 		if rst='1' then
 			data_out <= "00000000";

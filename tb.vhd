@@ -15,8 +15,8 @@ architecture behv of testbench is
 
 component CPU is
 port( 	
-		cpu_clk:	in std_logic;
-		cpu_rst:	in std_logic;
+		cpu_clk:		in std_logic;
+		cpu_rst:		in std_logic;
 		cpu_output:	out std_logic_vector(7 downto 0)
 ); 
 end component;
@@ -41,7 +41,7 @@ begin
     process
     begin 
 		TB_rst <= '1';
-		wait for 50 ns;
+		wait for 1 ns;
 		TB_rst <= '0';
 		wait for 100000 ns;
 	end process;	

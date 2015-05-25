@@ -9,18 +9,18 @@ use ieee.std_logic_unsigned.all;
 use work.all;
 
 entity in_memory is
-port ( 	clock	: 	in std_logic;
+port ( 	
+		clock		: 	in std_logic;								
 		rst		: 	in std_logic;
-		XMre		:	in std_logic;
-		XMwe		:	in std_logic;
-		Xaddress	:	in std_logic_vector(7 downto 0);
-		Xdata_in	:	in std_logic_vector(15 downto 0);
+		XMre		:	in std_logic;									--read enable
+		XMwe		:	in std_logic;									--write enable
+		Xaddress	:	in std_logic_vector(7 downto 0);			
+		Xdata_in	:	in std_logic_vector(15 downto 0);		
 		Xdata_out:	out std_logic_vector(15 downto 0)
 );
 end in_memory;
 
 architecture behv of in_memory is			
-
   type inram_type is array (0 to 255) of 
         		std_logic_vector(15 downto 0);
   signal tmp_inram: inram_type;
@@ -29,15 +29,16 @@ begin
 	
 
 							
-	write: process(clock, rst, XMre, Xaddress, Xdata_in)
+	write: process(clock, rst, XMre, XMwe, Xaddress, Xdata_in)
 	begin
 		if rst='1' then		
 			tmp_inram <= 		
 					(			
-						0 => "0000000000000000",	   	-- mov R0, $0
-						1 => "0000000100000001",			-- mov R1, $1
-						2 => "0000001000000010",			-- mov R2, $2
-						3 => "0000001000000011",			-- mov R3, $3
+						0 => "0000000000000011",	   	-- mov R0, $3
+						1 => "0000010100000000",			-- mov R1 <- r0
+						2 => "0000101000000000",			-- mov R2, 0x00
+						3 => "0000110000000111",			-- mov 0x01 <- r1
+						4 => "0001000000000001",			-- add r0, 1
 					
 						others => "1111111111111111");
 		else
@@ -49,7 +50,7 @@ begin
 		end if;
 	end process;
 
-    read: process(clock, rst, XMwe, Xaddress)
+    read: process(clock, rst, XMwe, XMwe, Xaddress)
 	begin
 		if rst='1' then
 			Xdata_out <= "1111111111111111";

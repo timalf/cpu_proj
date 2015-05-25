@@ -1,7 +1,6 @@
 --------------------------------------------------------
 -- alu.vhd
 --------------------------------------------------------
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
@@ -12,19 +11,15 @@ entity alu is
 port (	
 		num_A: 	in std_logic_vector(7 downto 0);
 		num_B: 	in std_logic_vector(7 downto 0);
-		ALUs:	in std_logic_vector(3 downto 0);
-		ALUout:	out std_logic_vector(7 downto 0);
-		--ALUout2:	out std_logic_vector(7 downto 0);
+		ALUs:		in std_logic_vector(3 downto 0);
+		ALUout:	out std_logic_vector(15 downto 0);
 		FLAGS: 	out std_logic_vector(3 downto 0) --cf,zf,sf,ovf
 		
 );
 end alu;
 
 architecture behv of alu is
-
---signal alu_tmp: std_logic_vector(7 downto 0);
-	signal cfv, zfv, sfv, ovf: STD_LOGIC;
-
+signal cfv, zfv, sfv, ovf: STD_LOGIC;
 
 begin
 
@@ -33,7 +28,6 @@ begin
 	variable temp2: STD_LOGIC_VECTOR (8 downto 0);
 	variable resv: STD_LOGIC_VECTOR (7 downto 0);
 	variable resv2: STD_LOGIC_VECTOR (15 downto 0);
-	--variable cfv, zfv, sfv, ovf: STD_LOGIC;
 	
 	begin
 		zfv <= '0';
@@ -43,20 +37,28 @@ begin
 		temp := "000000000";
 	case ALUs is 
 	
-	--dodawanie 
+	
 	when "0000" =>
-	temp := ('0' & num_A) + ('0' & num_B);
+	resv:= num_A;
+	ALUout <= "0000000000000000" + resv;
+	when "0001" =>
+	resv:= num_B;
+	ALUout <= "0000000000000000" + resv;
+	--dodawanie	
+	when "1011" =>
+	temp := num_A + num_B;
 	resv := temp(7 downto 0);
+	ALUout <= "0000000000000000" + resv;
+
 	cfv <= temp(8);
-	ovf <= resv(7) xor num_A(7) xor num_b(7) xor cfv;
+	ovf <= resv(7) xor num_A(7) xor num_B(7) xor cfv;
 	for i in 0 to 7 loop
 	zfv <= zfv or resv(i);
 	end loop;
-	ALUout <= resv;
 	zfv <= not zfv;
 	
 	--dodawanie +1
-	when "0001" =>
+	when "1100" =>
 	temp := ('0' & num_A) + ('0' & num_B) +1;
 	resv := temp(7 downto 0);
 	cfv <= temp(8);
@@ -64,7 +66,7 @@ begin
 	for i in 0 to 7 loop
 	zfv <= zfv or resv(i);
 	end loop;
-	ALUout <= resv;
+	ALUout <= '0' & resv;
 	zfv <= not zfv;
 	
 	--inkrementacja
@@ -77,7 +79,7 @@ begin
 	for i in 0 to 7 loop
 	zfv <= zfv or resv(i);
 	end loop;
-	ALUout <= resv;
+	ALUout <= '0' & resv;
 	zfv <= not zfv;
 	
 	--dekrementacja
@@ -91,7 +93,7 @@ begin
 	for i in 0 to 7 loop
 	zfv <= zfv or resv(i);
 	end loop;
-	ALUout <= resv;
+	ALUout <= '0' & resv;
 	zfv <= not zfv;
 	
 	--odejmowanie
@@ -105,7 +107,7 @@ begin
 	for i in 0 to 7 loop
 	zfv <= zfv or resv(i);
 	end loop;
-	ALUout <= resv;
+	ALUout <= '0' & resv;
 	zfv <= not zfv;
 	
 	--odejmowanie -1
@@ -119,7 +121,7 @@ begin
 	for i in 0 to 7 loop
 	zfv <= zfv or resv(i);
 	end loop;
-	ALUout <= resv;
+	ALUout <= '0' & resv;
 	zfv <= not zfv;
 	
 	--mnozenie
@@ -134,19 +136,19 @@ begin
 	--and
 	when "0111" =>
 	resv:=num_A and num_B;
-	ALUout <= resv;
+	ALUout <= '0' & resv;
 	--or
 	when "1000"  =>
 	resv:=num_A or num_B;
-	ALUout <= resv;
+	ALUout <= '0' & resv;
 	--xor
 	when "1001"  =>
 	resv:= num_A xor num_B;
-	ALUout <= resv;
+	ALUout <= '0' & resv;
 	--not
 	when "1010" =>
 	resv:= not num_A;
-	ALUout <= resv;		
+	ALUout <='0' &  resv;		
 	
 	when others =>
 	end case;

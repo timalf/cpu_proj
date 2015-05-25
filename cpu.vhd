@@ -1,5 +1,5 @@
 --------------------------------------------------------
--- microprocessor.vhd
+-- cpu.vhd
 --------------------------------------------------------
 
 library	ieee;
@@ -19,35 +19,32 @@ end CPU;
 architecture structure of CPU is
 
 component datapath is
-port(	clock_dp:	in std_logic;									--zegar
+port(	
+		clock_dp:	in std_logic;									--zegar
 		rst_dp:		in std_logic;									--reset
 		imm_data:	in std_logic_vector(7 downto 0);			--stala
 		mem_data: 	in std_logic_vector(7 downto 0);			--dane z pamieci
 		RFs_dp:		in std_logic_vector(1 downto 0);			--wybor multiplexera
-		RFwa_dp:		in std_logic_vector(1 downto 0);			
+		RFwa_dp:		in std_logic_vector(1 downto 0);				
 		RFr1a_dp:	in std_logic_vector(1 downto 0);
 		RFr2a_dp:	in std_logic_vector(1 downto 0);
 		RFwe_dp:		in std_logic;
 		RFr1e_dp:	in std_logic;
 		RFr2e_dp:	in std_logic;
 		ALUs_dp:		in std_logic_vector(3 downto 0);
-		oe_dp:		in std_logic;
-	--	ALUz_dp:		out std_logic;
-		RF1out_dp:	out std_logic_vector(7 downto 0);
-		ALUout_dp:	out std_logic_vector(7 downto 0);
-		bufout_dp:	out std_logic_vector(7 downto 0)
+		FLout_dp:	out std_logic_vector(3 downto 0);
+		ALUout_dp:	out std_logic_vector(15 downto 0)
+--		bufout_dp:	out std_logic_vector(7 downto 0)
 );
 end component;
 
-component ctrl_unit is		
+component CU is		
 port(	
 		clock_cu:	in std_logic;
 		rst_cu:		in std_logic;
-		PCld_cu:		in std_logic;
-		mdata_out: 	in std_logic_vector(7 downto 0);			--dane z pamieci danych 
+--		PCld_cu:		in std_logic;
+--		mdata_out: 	in std_logic_vector(7 downto 0);			--dane z pamieci danych 
 		Xmdata_out: in std_logic_vector(15 downto 0);		--dane z pamieci rozkazow
-		dpdata_out:	in std_logic_vector(7 downto 0);
-		Xdpdata_out:in std_logic_vector(15 downto 0);
 		maddr_in:	out std_logic_vector(7 downto 0);
 		Xmaddr_in:	out std_logic_vector(7 downto 0);		  
 		immdata:		out std_logic_vector(7 downto 0);
@@ -62,15 +59,17 @@ port(
 		ALUs_cu:		out std_logic_vector(3 downto 0);	
 		Mre_cu:		out std_logic;
 		Mwe_cu:		out std_logic;
+		Mra_cu:		out std_logic_vector(7 downto 0);
 		XMre_cu:		out std_logic;
-		XMwe_cu:		out std_logic;
-		oe_cu:		out std_logic
+		XMwe_cu:		out std_logic
+--		XMra_cu:		out std_logic_vector(7 downto 0)
+--		oe_cu:		out std_logic
 );
 end component;
 
 component memory is
 port ( 	
-		clock	: 	in std_logic;
+		clock		: 	in std_logic;
 		rst		: 	in std_logic;
 		Mre		:	in std_logic;
 		Mwe		:	in std_logic;
@@ -92,29 +91,32 @@ port (
 );
 end component;
 
-signal Xmdin_bus, Xmdout_bus,Xrfout_bus : std_logic_vector (15 downto 0);
-signal mdin_bus, mdout_bus, addr_bus, Xaddr_bus, immd_bus, mem_addr, Xmem_addr, rfout_bus: std_logic_vector(7 downto 0);
+signal Xmdin_bus, Xmdout_bus : std_logic_vector (15 downto 0);
+signal mdin_bus, mdout_bus, addr_bus, Xaddr_bus, immd_bus, mem_addr, Xmem_addr: std_logic_vector(7 downto 0);
 signal RFwa_s, RFr1a_s, RFr2a_s: std_logic_vector(1 downto 0);
 signal RFwe_s, RFr1e_s, RFr2e_s: std_logic;
 signal ALUs_s : std_logic_vector(3 downto 0);
-
-signal  RFs_s: std_logic_vector(1 downto 0);
+signal FLout_bus : std_logic_vector (3 downto 0);
+signal RFs_s: std_logic_vector(1 downto 0);
 signal IRld_s, PCld_s, PCinc_s, PCclr_s: std_logic;
-signal Mre_s, Mwe_s, oe_s: std_logic;
+signal Mre_s, Mwe_s: std_logic;
 signal XMre_s, XMwe_s: std_logic;
-
+signal mdin_bus_t :std_logic_vector (15 downto 0);
 begin
 	
-	mem_addr <= addr_bus(7 downto 0); 
+	mdin_bus <= mdin_bus_t(7 downto 0);
+--	mem_addr <= addr_bus(7 downto 0); 
 	Xmem_addr <= Xaddr_bus(7 downto 0);
+	cpu_output <= mdin_bus_t(7 downto 0);
 	
-	Unit0: ctrl_unit port map(	cpu_clk,
+	Unit0: CU port map(			
+										cpu_clk,
 										cpu_rst,
-										PCld_s,
-										mdout_bus,
+		--								PCld_s,
+							--			mdout_bus,
 										Xmdout_bus,
-										rfout_bus,
-										Xrfout_bus,	
+						--				rfout_bus,
+							--			Xrfout_bus,	
 										addr_bus, 
 										Xaddr_bus,
 										immd_bus, 
@@ -128,10 +130,14 @@ begin
 										ALUs_s,
 										Mre_s,
 										Mwe_s,
+										mem_addr,
 										XMre_s,
-										XMwe_s,
-										oe_s);
-	Unit1: datapath port map( cpu_clk,
+										XMwe_s
+			--							Xmem_addr
+					--					oe_s
+										);
+	Unit1: datapath port map( 
+										cpu_clk,
 										cpu_rst,
 										immd_bus,
 										mdout_bus,
@@ -143,23 +149,25 @@ begin
 										RFr1e_s,
 										RFr2e_s,
 										ALUs_s,
-										oe_s,
-										--PCld_s,
-										rfout_bus,
-										mdin_bus,
-										cpu_output);
-	Unit2: memory port map(	cpu_clk,
+								--		oe_s,
+										FLout_bus,
+										mdin_bus_t
+									--	cpu_output
+									);
+	Unit2: memory port map(	
+										cpu_clk,
 										cpu_rst,
 										Mre_s,
 										Mwe_s,
 										mem_addr,
 										mdin_bus,
 										mdout_bus);
-	Unit3: in_memory port map(	cpu_clk,
+	Unit3: in_memory port map(	
+										cpu_clk,
 										cpu_rst,
 										XMre_s,
 										XMwe_s,
-										Xmem_addr,
+										Xaddr_bus,
 										Xmdin_bus,
 										Xmdout_bus);
 

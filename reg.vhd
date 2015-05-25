@@ -9,7 +9,8 @@ use ieee.std_logic_unsigned.all;
 use work.all;
 
 entity reg_file is
-port ( 	clock	: 	in std_logic; 	
+port ( 	
+	clock	: 	in std_logic; 	
 	rst	: 	in std_logic;
 	RFwe	: 	in std_logic;
 	RFr1e	: 	in std_logic;
@@ -25,7 +26,7 @@ end reg_file;
 
 architecture behv of reg_file is			
 
-  type rf_type is array (0 to 15) of 
+  type rf_type is array (0 to 3) of 
         std_logic_vector(7 downto 0);
   signal tmp_rf: rf_type;
 
