@@ -24,6 +24,7 @@ port(
 	PCinc_ctrl:	out std_logic;
 	PCclr_ctrl:	out std_logic;
 	PCld_ctrl:	out std_logic;
+	PCad_ctrl:	out std_logic_vector(7 downto 0);
 	IRld_ctrl:	out std_logic;
 	Mre_ctrl:	out std_logic;
 	Mwe_ctrl:	out std_logic;
@@ -36,7 +37,7 @@ end controller;
 architecture fsm of controller is
 
   type state_type is (  S0,S1,S1a,S1b,S2,S3,S3a,S3b,S3c,S4,S4a,S4b,S5,S5a,S5b, S5c,
-			S6,S6a,S6b,S6c,S6d,S7,S7a,S7b,S7c,S8,S8a,S8b,S9,S9a,S9b,S10,S11,S11a);
+			S6,S6a,S6b,S6c,S6d,S7,S7a,S7b,S7c,S8,S8a,S8b,S8c,S9,S9a,S9b,S9c,S9d,S10,S11,S11a);
   signal state: state_type;
 	
 begin
@@ -90,11 +91,11 @@ begin
 			    when "000010" => 	state <= S3;		-- RF[rn] <= mem
 			    when "000001" => 	state <= S4;		-- RF[rn] <= RF[rm]
 			    when "000000" => 	state <= S5;		-- RF[rn] <= stala
-			    when "000100" => 	state <= S6;
-			    when "000011" =>  	state <= S7;
-			    when "010100" =>		state <= S8;
-			    when "011000" =>		state <= S9;
-			    when "011100" =>		state <= S10; 
+			    when "000100" => 	state <= S6;		-- Rf[rn] <= Rf[rn] + stala
+			    when "000011" =>  	state <= S7;		-- mem <= Rf[rn]
+			    when "000101" =>		state <= S8;		-- jmp
+			    when "000110" =>		state <= S9;		-- Rf[rn] <= Rf[rn] + Rf[rm]
+			    when "011100" =>		state <= S10; 	
 			    when "100000" => 	state <= S11;
 			    when others 	=> 	state <= S1;
 			    end case;
@@ -172,6 +173,40 @@ begin
 		when S7c => 
 			Mre_ctrl <= '0';
 			Mwe_ctrl <= '1';
+			state <= S1;
+			
+		when S8 => 
+			PCad_ctrl <= IR_word (7 downto 0);
+			state <= S8a;
+		when S8a =>
+			PCinc_ctrl <= '0';
+			PCld_ctrl <= '1';
+			state <= S8b;
+		when S8b =>
+			PCld_ctrl <= '0';
+			state <= S8c;
+		when S8c => 
+			state <= S1;
+			
+		when S9 => --dodawanie RF + RF
+			RFr1a_ctrl <= IR_word(9 downto 8);	
+			RFr2a_ctrl <= IR_word(1 downto 0);
+			RFwa_ctrl <= IR_word(9 downto 8);	
+			state <= S9a;
+		when S9a =>
+			RFwe_ctrl <= '0';
+			RFr1e_ctrl <= '1';
+			RFr2e_ctrl <= '1';
+			RFs_ctrl <= "10";		 
+			state <= S9b;
+		when S9b =>
+		ALUs_ctrl <= "1011";
+			state <= S9c;
+		when S9c => 
+			RFwe_ctrl <= '1';
+			state <= S9d;	
+		when S9d =>
+			RFwe_ctrl <= '0';
 			state <= S1;
 	  when others =>
 

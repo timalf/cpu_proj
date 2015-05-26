@@ -54,6 +54,7 @@ port(
 	PCinc_ctrl:	out std_logic;
 	PCclr_ctrl:	out std_logic;
 	PCld_ctrl:	out std_logic; 
+	PCad_ctrl: 	out std_logic_vector(7 downto 0);
 	IRld_ctrl:	out std_logic;
 	Mre_ctrl:	out std_logic;
 	Mwe_ctrl:	out std_logic;
@@ -110,6 +111,7 @@ begin
 									PCinc_sig,
 									PCclr_sig,
 									PCld_sig,
+									PCin_memaddr,
 									IRld_sig,
 									--Ms_sig,
 									Mre_cu,

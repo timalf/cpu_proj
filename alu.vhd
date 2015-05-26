@@ -25,6 +25,7 @@ begin
 
 	process (num_A,num_B,ALUs)
 	variable temp: STD_LOGIC_VECTOR (8 downto 0);
+	variable opA, opB : std_logic_vector (7 downto 0);
 	variable temp2: STD_LOGIC_VECTOR (8 downto 0);
 	variable resv: STD_LOGIC_VECTOR (7 downto 0);
 	variable resv2: STD_LOGIC_VECTOR (15 downto 0);
@@ -35,6 +36,8 @@ begin
 		sfv <= '0';
 		ovf <= '0';
 		temp := "000000000";
+		opA := num_A;
+		opB := num_B;
 	case ALUs is 
 	
 	
@@ -46,9 +49,9 @@ begin
 	ALUout <= "0000000000000000" + resv;
 	--dodawanie	
 	when "1011" =>
-	temp := num_A + num_B;
+	temp := ('0' & opA) + ('0' & opB);
 	resv := temp(7 downto 0);
-	ALUout <= "0000000000000000" + resv;
+	ALUout <= "00000000" & resv;
 
 	cfv <= temp(8);
 	ovf <= resv(7) xor num_A(7) xor num_B(7) xor cfv;
