@@ -30,7 +30,9 @@ port(
 	Mwe_ctrl:	out std_logic;
 	Mra_ctrl:	out std_logic_vector(7 downto 0);
 	XMre_ctrl:	out std_logic;
-	XMwe_ctrl:	out std_logic
+	XMwe_ctrl:	out std_logic;
+	FLwe_ctrl:	out std_logic;
+	FLre_ctrl:	out std_logic
 );
 end controller;
 
@@ -55,7 +57,9 @@ begin
 	RFr1e_ctrl <= '0';
 	RFr2e_ctrl <= '0';
 	Mre_ctrl <= '0';
-	Mwe_ctrl <= '0';					
+	Mwe_ctrl <= '0';
+	FLwe_ctrl <= '0';
+	FLre_ctrl <= '0';
 	state <= S0;
 
     elsif (clock'event and clock='1') then
@@ -66,7 +70,8 @@ begin
 			PCclr_ctrl <= '0';			-- rst 	
 			state <= S1;	
 
-	  when S1 =>	
+	  when S1 =>
+			FLwe_ctrl <= '0';
 			PCinc_ctrl <= '0';		-- pobieranie instrukcji	
 			PCld_ctrl <= '0';
 			RFwe_ctrl <= '0';
@@ -95,7 +100,7 @@ begin
 			    when "000011" =>  	state <= S7;		-- mem <= Rf[rn]
 			    when "000101" =>		state <= S8;		-- jmp
 			    when "000110" =>		state <= S9;		-- Rf[rn] <= Rf[rn] + Rf[rm]
-			    when "011100" =>		state <= S10; 	
+			    when "000111" =>		state <= S10; 	
 			    when "100000" => 	state <= S11;
 			    when others 	=> 	state <= S1;
 			    end case;
@@ -113,6 +118,8 @@ begin
 			ALUs_ctrl <= "0001";
 			state <= S3c;
 		when S3c => 
+			FLwe_ctrl <= '1';
+		--	FLwe_ctrl <= '0';
 			RFwe_ctrl <= '1';
 			state <= S1;
 	    
@@ -124,9 +131,12 @@ begin
 			state <= S4a;				
 	  when S4a => 
 			ALUs_ctrl <= "0000";
+	--		FLwe_ctrl <= '1';
 			state <= S4b;
-	  when S4b =>   
+	  when S4b =>  
+			FLwe_ctrl <= '1';
 			RFwe_ctrl <= '1';
+		--	FLwe_ctrl <= '0';
 			state <= S1;
 		
 		when S5 => 
@@ -137,9 +147,12 @@ begin
 			state <= S5b;
 		when S5b =>
 		ALUs_ctrl <= "0001";
+--		FLwe_ctrl <= '1';
 			state <= S5c;
 		when S5c => 
+			FLwe_ctrl <= '1';
 			RFwe_ctrl <= '1';
+	--		FLwe_ctrl <= '0';
 			state <= S1;
 		------------------------	
 		when S6 => --dodawanie RF + dir
@@ -153,13 +166,17 @@ begin
 			state <= S6b;
 		when S6b =>
 		ALUs_ctrl <= "1011";
+	--	FLwe_ctrl <= '1';
 			state <= S6c;
 		when S6c => 
+			FLwe_ctrl <= '1';
 			RFwe_ctrl <= '1';
+		--	FLwe_ctrl <= '0';
 			state <= S6d;	
 			when S6d =>
 			RFwe_ctrl <= '0';
 			state <= S1;
+			
 		when S7 => 
 			RFr1a_ctrl <= IR_word(9 downto 8);	-- mem <= RF[rn]
 			Mra_ctrl <= IR_word(7 downto 0);
@@ -169,10 +186,13 @@ begin
 			state <= S7b;
 		when S7b =>
 		ALUs_ctrl <= "0000";
+	--	FLwe_ctrl <= '1';
 			state <= S7c;
 		when S7c => 
+			FLwe_ctrl <= '1';
 			Mre_ctrl <= '0';
 			Mwe_ctrl <= '1';
+	--		FLwe_ctrl <= '0';
 			state <= S1;
 			
 		when S8 => 
@@ -201,9 +221,12 @@ begin
 			state <= S9b;
 		when S9b =>
 		ALUs_ctrl <= "1011";
+	--	FLwe_ctrl <= '1';
 			state <= S9c;
 		when S9c => 
+			FLwe_ctrl <= '1';
 			RFwe_ctrl <= '1';
+	--		FLwe_ctrl <= '0';
 			state <= S9d;	
 		when S9d =>
 			RFwe_ctrl <= '0';

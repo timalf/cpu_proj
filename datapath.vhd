@@ -21,6 +21,8 @@ port(
 	RFr1e_dp:	in 	std_logic;									--reg read1 enable
 	RFr2e_dp:	in 	std_logic;									--reg read2 enable
 	ALUs_dp:		in 	std_logic_vector(3 downto 0);			--alu oper
+	FLwe_dp:		in 	std_logic;	
+	FLre_dp:		in 	std_logic;	
 	FLout_dp:	out 	std_logic_vector(3 downto 0);			--alu flag out	
 	ALUout_dp:	out 	std_logic_vector(15 downto 0)			--alu result out
 );
@@ -64,6 +66,17 @@ port (
 );
 end component;
 
+component fl_reg is
+port (	
+			clock	: 	in std_logic; 	
+			rst	: 	in std_logic;
+			FLwe	: 	in std_logic;
+			FLre	: 	in std_logic;
+			FLwd	: 	in std_logic_vector(3 downto 0);
+			FLrd	: 	out std_logic_vector(3 downto 0)			
+);
+end component;
+
 signal rf2alu1, rf2alu2, muxout_s: std_logic_vector(7 downto 0); 
 signal FLAGS_s: std_logic_vector(3 downto 0);
 signal ALU_out_s: std_logic_vector (15 downto 0);
@@ -98,6 +111,14 @@ begin
 						muxout_s, 
 						ALUs_dp,
 						ALU_out_s, 
+						FLAGS_s
+						);
+	U4: fl_reg port map(
+						clock_dp, 	
+						rst_dp, 
+						FLwe_dp,
+						FLre_dp,
+						FLAGS_s, 
 						FLout_dp
 						);
 			 	

@@ -32,6 +32,8 @@ port(
 		RFr1e_dp:	in std_logic;
 		RFr2e_dp:	in std_logic;
 		ALUs_dp:		in std_logic_vector(3 downto 0);
+		FLwe_dp:		in 	std_logic;	
+		FLre_dp:		in 	std_logic;	
 		FLout_dp:	out std_logic_vector(3 downto 0);
 		ALUout_dp:	out std_logic_vector(15 downto 0)
 --		bufout_dp:	out std_logic_vector(7 downto 0)
@@ -61,7 +63,9 @@ port(
 		Mwe_cu:		out std_logic;
 		Mra_cu:		out std_logic_vector(7 downto 0);
 		XMre_cu:		out std_logic;
-		XMwe_cu:		out std_logic
+		XMwe_cu:		out std_logic;
+		FLwe_cu:		out	std_logic;	
+		FLre_cu:		out 	std_logic
 --		XMra_cu:		out std_logic_vector(7 downto 0)
 --		oe_cu:		out std_logic
 );
@@ -100,7 +104,7 @@ signal FLout_bus : std_logic_vector (3 downto 0);
 signal RFs_s: std_logic_vector(1 downto 0);
 signal IRld_s, PCld_s, PCinc_s, PCclr_s: std_logic;
 signal Mre_s, Mwe_s: std_logic;
-signal XMre_s, XMwe_s: std_logic;
+signal XMre_s, XMwe_s, FLwe_s, FLre_s: std_logic;
 signal mdin_bus_t :std_logic_vector (15 downto 0);
 begin
 	
@@ -132,7 +136,9 @@ begin
 										Mwe_s,
 										mem_addr,
 										XMre_s,
-										XMwe_s
+										XMwe_s,
+										FLwe_s,
+										FLre_s
 			--							Xmem_addr
 					--					oe_s
 										);
@@ -150,6 +156,8 @@ begin
 										RFr2e_s,
 										ALUs_s,
 								--		oe_s,
+										FLwe_s,
+										FLre_s,
 										FLout_bus,
 										mdin_bus_t
 									--	cpu_output

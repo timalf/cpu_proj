@@ -31,8 +31,10 @@ port(
 	Mwe_cu:			out 	std_logic;
 	Mra_cu:			out	std_logic_vector(7 downto 0);	
 	XMre_cu:			out 	std_logic;
-	XMwe_cu:			out 	std_logic
+	XMwe_cu:			out 	std_logic;
 --	XMra_cu:			out	std_logic_vector(7 downto 0)	
+	FLwe_cu:		out std_logic;
+	FLre_cu:	out std_logic
 );
 end CU;
 
@@ -60,7 +62,9 @@ port(
 	Mwe_ctrl:	out std_logic;
 	Mra_ctrl:	out std_logic_vector(7 downto 0);
 	XMre_ctrl:	out std_logic;
-	XMwe_ctrl:	out std_logic
+	XMwe_ctrl:	out std_logic;
+	FLwe_ctrl:	out std_logic;
+	FLre_ctrl:	out std_logic
 
 );
 end component;
@@ -118,7 +122,10 @@ begin
 									Mwe_cu,
 									Mra_cu,
 									XMre_cu,
-									XMwe_cu
+									XMwe_cu,
+									FLwe_cu,
+									FLre_cu
+									
 								--	PCout_memaddr
 					--				oe_cu
 									);
