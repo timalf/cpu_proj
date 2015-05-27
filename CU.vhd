@@ -11,19 +11,17 @@ entity CU is
 port(	
 	clock_cu		:	in 	std_logic;
 	rst_cu		:	in 	std_logic;
---	PCld_cu		:	in 	std_logic;
---	mdata_out	: 	in 	std_logic_vector(7 downto 0);
 	Xmdata_out	: 	in 	std_logic_vector(15 downto 0);
--- dpdata_out	:	in 	std_logic_vector(7 downto 0);
---	Xdpdata_out	:	in 	std_logic_vector(15 downto 0);
 	maddr_in		:	out 	std_logic_vector(7 downto 0);		  
 	Xmaddr_in	:	out 	std_logic_vector(7 downto 0);		  
 	immdata		:	out 	std_logic_vector(7 downto 0);
 	RFs_cu		:	out	std_logic_vector(1 downto 0);
-	RFwa_cu		:	out	std_logic_vector(1 downto 0);
-	RFr1a_cu:		out	std_logic_vector(1 downto 0);
-	RFr2a_cu:		out	std_logic_vector(1 downto 0);
-	RFwe_cu:			out	std_logic;
+	RFw1a_cu		:	out	std_logic_vector(1 downto 0);
+	RFw2a_cu		:	out	std_logic_vector(1 downto 0);
+	RFr1a_cu		:	out	std_logic_vector(1 downto 0);
+	RFr2a_cu		:	out	std_logic_vector(1 downto 0);
+	RFw1e_cu		:	out	std_logic;
+	RFw2e_cu		:	out	std_logic;
 	RFr1e_cu:		out	std_logic;
 	RFr2e_cu:		out	std_logic;
 	ALUs_cu:			out	std_logic_vector(3 downto 0);	
@@ -32,9 +30,10 @@ port(
 	Mra_cu:			out	std_logic_vector(7 downto 0);	
 	XMre_cu:			out 	std_logic;
 	XMwe_cu:			out 	std_logic;
---	XMra_cu:			out	std_logic_vector(7 downto 0)	
-	FLwe_cu:		out std_logic;
-	FLre_cu:	out std_logic
+	FLwe_cu:			out 	std_logic;
+	FLre_cu:			out 	std_logic;
+	FLin_cu:			in		std_logic_vector(3 downto 0)
+
 );
 end CU;
 
@@ -46,10 +45,12 @@ port(
 	rst:			in std_logic;
 	IR_word:		in std_logic_vector(15 downto 0);
 	RFs_ctrl:	out std_logic_vector(1 downto 0);
-	RFwa_ctrl:	out std_logic_vector(1 downto 0);
+	RFw1a_ctrl:	out std_logic_vector(1 downto 0);
+	RFw2a_ctrl:	out std_logic_vector(1 downto 0);
 	RFr1a_ctrl:	out std_logic_vector(1 downto 0);
 	RFr2a_ctrl:	out std_logic_vector(1 downto 0);
-	RFwe_ctrl:	out std_logic;
+	RFw1e_ctrl:	out std_logic;
+	RFw2e_ctrl:	out std_logic;
 	RFr1e_ctrl:	out std_logic;
 	RFr2e_ctrl:	out std_logic;						 
 	ALUs_ctrl:	out std_logic_vector(3 downto 0);	 
@@ -64,7 +65,8 @@ port(
 	XMre_ctrl:	out std_logic;
 	XMwe_ctrl:	out std_logic;
 	FLwe_ctrl:	out std_logic;
-	FLre_ctrl:	out std_logic
+	FLre_ctrl:	out std_logic;
+	FLin_ctrl:	in std_logic_vector(3 downto 0)
 
 );
 end component;
@@ -90,9 +92,7 @@ end component;
 
 signal IR_sig: std_logic_vector(15 downto 0);
 signal PCinc_sig, PCclr_sig, IRld_sig, PCld_sig: std_logic;
-signal Ms_sig: std_logic_vector(1 downto 0);
-signal PC2mux: std_logic_vector(7 downto 0);
-signal XMra_sig,IR2mux_a, IR2mux_b: std_logic_vector(7 downto 0); 
+signal XMra_sig: std_logic_vector(7 downto 0); 
 signal PCin_memaddr, PCout_memaddr: std_logic_vector (7 downto 0);
 
 
@@ -105,10 +105,12 @@ begin
 									rst_cu,
 									IR_sig,
 									RFs_cu,
-									RFwa_cu,
+									RFw1a_cu,
+									RFw2a_cu,
 									RFr1a_cu,
 									RFr2a_cu,
-									RFwe_cu,
+									RFw1e_cu,
+									RFw2e_cu,
 									RFr1e_cu,
 									RFr2e_cu,
 									ALUs_cu,
@@ -117,40 +119,28 @@ begin
 									PCld_sig,
 									PCin_memaddr,
 									IRld_sig,
-									--Ms_sig,
 									Mre_cu,
 									Mwe_cu,
 									Mra_cu,
 									XMre_cu,
 									XMwe_cu,
 									FLwe_cu,
-									FLre_cu
-									
-								--	PCout_memaddr
-					--				oe_cu
+									FLre_cu,
+									FLin_cu
 									);
-  U1: PC port map(			PCld_sig, 
+  U1: PC port map(			
+									PCld_sig, 
 									PCinc_sig, 
 									PCclr_sig, 
 									PCin_memaddr, 
-									Xmaddr_in);
+									Xmaddr_in
+									);
   U2: IR port map(			
 									Xmdata_out, 
 									IRld_sig, 
-								--	IR2mux_a, 
-									IR_sig);
-									---multiplekser do ogarniecia
---  U3: mux1 port map(		dpdata_out,
---									IR2mux_a,
---									PC2mux,
---									IR2mux_b,
---									Ms_sig,
---									maddr_in
---									);
-
-IR2mux_a <= IR_sig(7 downto 0);
-  IR2mux_b <= "000000" & IR_sig(7 downto 6);	
+									IR_sig
+									);
+									
   immdata <= IR_sig(7 downto 0);
- -- XMra_cu <= PCout_memaddr;
 
 end struct;

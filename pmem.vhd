@@ -26,20 +26,18 @@ architecture behv of in_memory is
   signal tmp_inram: inram_type;
 
 begin
-	
-
 							
 	write: process(clock, rst, XMre, XMwe, Xaddress, Xdata_in)
 	begin
 		if rst='1' then		
 			tmp_inram <= 		
 					(	
-						0 => "0000000000000011",	   	-- mov R0, $3
-						1 => "0000101000000000",			-- mov R2, 0x00
-						2 => "0000110000000111",			-- mov 0x01 <- r1
-						3 => "0001000000000001",			-- add r0, $1
-						4 => "0001100100000000",			-- add r1, r0
-						5 => "0001010000000000",			-- jmp
+						0 => "0000000000000001",	   	-- mov R0, $1
+						1 => "0010110000000010",			-- subb R1, $2
+						2 => "0010110000000001",			-- subb r1, $1
+				--		3 => "0001110100000001",			-- add r1, $1
+					--	4 => "0001111100000001",			-- add r1, r0
+						--5 => "0001010000000000",			-- jmp
  
 					
 						others => "1111111111111111");

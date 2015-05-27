@@ -14,10 +14,12 @@ port(
 	imm_data:	in 	std_logic_vector(7 downto 0);			--stala
 	mem_data: 	in 	std_logic_vector(7 downto 0);			--dane z ram
 	RFs_dp:		in 	std_logic_vector(1 downto 0);			--wybor mux
-	RFwa_dp:		in 	std_logic_vector(1 downto 0);			--reg write adress
+	RFw1a_dp:	in 	std_logic_vector(1 downto 0);			--reg write adress
+	RFw2a_dp:	in 	std_logic_vector(1 downto 0);			--reg write adress
 	RFr1a_dp:	in 	std_logic_vector(1 downto 0);			--reg read1 adress
 	RFr2a_dp:	in 	std_logic_vector(1 downto 0);			--reg read2 adress
-	RFwe_dp:		in 	std_logic;									--reg write enable
+	RFw1e_dp:	in 	std_logic;									--reg write enable
+	RFw2e_dp:	in 	std_logic;									--reg write enable
 	RFr1e_dp:	in 	std_logic;									--reg read1 enable
 	RFr2e_dp:	in 	std_logic;									--reg read2 enable
 	ALUs_dp:		in 	std_logic_vector(3 downto 0);			--alu oper
@@ -44,13 +46,16 @@ component reg_file is
 port ( 	
 			clock	: 	in std_logic;									
 			rst	: 	in std_logic;
-			RFwe	: 	in std_logic;									--write enable
+			RFw1e	: 	in std_logic;									--write enable
+			RFw2e	: 	in std_logic;									--write enable
 			RFr1e	: 	in std_logic;									--read1 enable
 			RFr2e	: 	in std_logic;									--read2 enable
-			RFwa	: 	in std_logic_vector(1 downto 0);			--write address
+			RFw1a	: 	in std_logic_vector(1 downto 0);			--write address
+			RFw2a	: 	in std_logic_vector(1 downto 0);			--write address
 			RFr1a	: 	in std_logic_vector(1 downto 0);			--read1 address
 			RFr2a	: 	in std_logic_vector(1 downto 0);			--read2 address
-			RFw	: 	in std_logic_vector(7 downto 0);			--write data
+			RFw1	: 	in std_logic_vector(7 downto 0);			--write data
+			RFw2	: 	in std_logic_vector(7 downto 0);			--write data
 			RFr1	: 	out std_logic_vector(7 downto 0);		--read1 data
 			RFr2	:	out std_logic_vector(7 downto 0)			--read2 data
 );
@@ -62,7 +67,8 @@ port (
 			num_B	: 	in std_logic_vector(7 downto 0);			--2op data
 			ALUs	:	in std_logic_vector(3 downto 0);			--op select
 			ALUout:	out std_logic_vector(15 downto 0);		--output
-			FLAGS	: 	out std_logic_vector(3 downto 0)			--cf,zf,sf,ovf
+			FLAGS_out	: 	out std_logic_vector(3 downto 0);		--cf,zf,sf,ovf
+			FLAGS_in	: 	in std_logic_vector(3 downto 0)		--cf,zf,sf,ovf
 );
 end component;
 
@@ -78,7 +84,7 @@ port (
 end component;
 
 signal rf2alu1, rf2alu2, muxout_s: std_logic_vector(7 downto 0); 
-signal FLAGS_s: std_logic_vector(3 downto 0);
+signal FLAGS_s,FLAGS_os: std_logic_vector(3 downto 0);
 signal ALU_out_s: std_logic_vector (15 downto 0);
 
 
@@ -95,13 +101,16 @@ begin
   U2: reg_file port map(
 						clock_dp, 
 						rst_dp, 
-						RFwe_dp, 
+						RFw1e_dp,
+						RFw2e_dp,
 						RFr1e_dp,
 						RFr2e_dp, 
-						RFwa_dp, 
+						RFw1a_dp,
+						RFw2a_dp,
 						RFr1a_dp, 
 						RFr2a_dp, 
-						ALU_out_s(7 downto 0), 
+						ALU_out_s(7 downto 0),
+						ALU_out_s(15 downto 8),
 						rf2alu1, 
 						rf2alu2
 						);
@@ -111,7 +120,8 @@ begin
 						muxout_s, 
 						ALUs_dp,
 						ALU_out_s, 
-						FLAGS_s
+						FLAGS_s,
+						FLAGS_os
 						);
 	U4: fl_reg port map(
 						clock_dp, 	
@@ -119,10 +129,11 @@ begin
 						FLwe_dp,
 						FLre_dp,
 						FLAGS_s, 
-						FLout_dp
+						FLAGS_os
 						);
 			 	
   ALUout_dp <= ALU_out_s;
+  FLout_dp <= FLAGS_os;
 	
 end struct;
 

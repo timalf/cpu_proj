@@ -40,37 +40,25 @@ port (
 	FLrd	: 	out std_logic_vector(3 downto 0)
 	);
 end fl_reg;
-
 architecture behv of fl_reg is
-signal FL_temp: std_logic_vector(3 downto 0);
+signal FL_temp: std_logic_vector (3 downto 0);
+
 begin
 
-
-write: process(clock, rst, FLwe, FLwd)
+ process(clock, rst, FLwe, FLwd, FLre)
   begin
     if rst='1' then				-- high active
         FL_temp <= "0000";
     else
 	if (clock'event and clock = '1') then
-	  if FLwe='1' then
+	  if FLwe='1' and FLre='0' then
 	    FL_temp <= FLwd;
+	  else
+	  	    Flrd <= FL_temp;
 	  end if;
 	end if;
     end if;
   end process;						   
-	
-  read: process(clock, rst, FLre)
-  begin
-    if rst='1' then
-	FL_temp <= "0000";
-    else
-	if (clock'event and clock = '1') then
-	  if FLre='1' then								 
-	    Flrd <= FL_temp;
-	  end if;
-	end if;
-    end if;
-  end process;
 
 end behv;
 
