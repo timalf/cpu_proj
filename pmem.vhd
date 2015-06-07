@@ -32,7 +32,7 @@ begin
 							
 	write: process(clock, rst, XMre, XMwe, Xaddress, Xdata_in)
 	FILE f: TEXT;
-	constant filename: string:= "instrukcja.txt";
+	constant filename: string:= "Z:\Users\bobek\pwr\git-repo\cpu_proj\instrukcja.txt";
 	variable l : LINE;
 	variable b : std_logic_vector(15 downto 0);
 	variable i : integer:=0;

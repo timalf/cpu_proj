@@ -237,7 +237,7 @@ assemblers = {
      ("ORL","REG","REG"):orlREGR,
      ("XRL","REG","IMM"):xrlREGR,
      ("XRL","REG","REG"):xrlREGR,
-     ("CMP","REG","IMM"):cmpREGR,
+     ("CMP","REG","IMM"):cmpRIMM,
      ("CMP","REG","REG"):cmpREGR,
      ("CPL","REG"):cplREGR,
      ("JMP","IMM"):jmpIMM,
@@ -277,8 +277,8 @@ def assemble(src):
         for i,t in enumerate(sig[1:]):
             if t == "LBL":
                 sig[i+1] = "IMM"
-                if sig[0] == "JMP" or sig[0]=="JZ" or sig[0]=="JE" or sig[0]=="JL":
-                    operands[i] = labels[operands[i]]
+                if sig[0] == "JMP" or sig[0]=="JG" or sig[0]=="JE" or sig[0]=="JL":
+                    operands[i] = labels[operands[i]]-1 #tu byla zmiana
                 else:
                     raise RuntimeError, "Nieznany kod operacji %r" % sig
         inst = assemblers[tuple(sig)](operands)

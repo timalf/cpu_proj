@@ -158,17 +158,17 @@ begin
 	--cmp
 	when "1101" =>
 	resv:=opA - opB;
-	if (conv_integer(resv)=0) then --czy rowne
+	if (opA=opB) then --czy rowne
 	cfv:='1';
 	zfv:='1';
 	sfv:='1';
 	ovf:='1';
-	elsif (opA /= opB and conv_integer(resv)>0) then --czywieksze
+	elsif (opA /= opB and resv(7)='0') then --czywieksze
 	cfv:='1';
 	zfv:='0';
 	sfv:='0';
 	ovf:='0';
-	elsif (opA /= opB and conv_integer(resv)<0) then --czywieksze
+	elsif (opA /= opB and resv(7)='1') then --czymniejsze
 	cfv:='0';
 	zfv:='0';
 	sfv:='0';
