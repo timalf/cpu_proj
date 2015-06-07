@@ -5,7 +5,9 @@
 library	ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;   
+use ieee.std_logic_unsigned.all; 
+use ieee.std_logic_textio.all;
+use std.textio.all;  
 use work.all;
 
 entity in_memory is
@@ -26,21 +28,25 @@ architecture behv of in_memory is
   signal tmp_inram: inram_type;
 
 begin
+	
 							
 	write: process(clock, rst, XMre, XMwe, Xaddress, Xdata_in)
+	FILE f: TEXT;
+	constant filename: string:= "instrukcja.txt";
+	variable l : LINE;
+	variable b : std_logic_vector(15 downto 0);
+	variable i : integer:=0;
 	begin
-		if rst='1' then		
-			tmp_inram <= 		
-					(	
-						0 => "0000000000000001",	   	-- mov R0, $1
-						1 => "0010110000000010",			-- subb R1, $2
-						2 => "0010110000000001",			-- subb r1, $1
-				--		3 => "0001110100000001",			-- add r1, $1
-					--	4 => "0001111100000001",			-- add r1, r0
-						--5 => "0001010000000000",			-- jmp
- 
-					
-						others => "1111111111111111");
+		if rst='1' and i=0 then	
+			tmp_inram <= (others => "1111111111111111");
+			file_open(f,filename,read_mode);
+			while((i<=255) and (not endfile(f))) loop
+				readline(f,l);
+				read(l,b);		
+				tmp_inram(i)<= b; 			
+				i:=i+1;
+			end loop;
+			file_close(f);
 		else
 			if (clock'event and clock = '1') then
 				if (XMwe ='1' and XMre = '0') then

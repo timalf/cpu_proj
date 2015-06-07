@@ -43,7 +43,7 @@ begin
 		TB_rst <= '1';
 		wait for 1 ns;
 		TB_rst <= '0';
-		wait for 100000 ns;
+		wait for 1000 ns;
 	end process;	
 
 end behv;				 
