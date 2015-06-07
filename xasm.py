@@ -277,7 +277,7 @@ def assemble(src):
         for i,t in enumerate(sig[1:]):
             if t == "LBL":
                 sig[i+1] = "IMM"
-                if sig[0] == "JMP":
+                if sig[0] == "JMP" or sig[0]=="JZ" or sig[0]=="JE" or sig[0]=="JL":
                     operands[i] = labels[operands[i]]
                 else:
                     raise RuntimeError, "Nieznany kod operacji %r" % sig
