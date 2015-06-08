@@ -31,12 +31,7 @@ begin
 	begin
 		if rst='1' then		
 			tmp_ram <= 
-						(
-						0 => "11111111",	   
-						1 => "00110001",			
-						2 => "00110010",			
-						3 => "00110011",	
-					
+						(			
 						others => "00000000");
 		else
 			if (clock'event and clock = '1') then

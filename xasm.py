@@ -278,7 +278,7 @@ def assemble(src):
             if t == "LBL":
                 sig[i+1] = "IMM"
                 if sig[0] == "JMP" or sig[0]=="JG" or sig[0]=="JE" or sig[0]=="JL":
-                    operands[i] = labels[operands[i]]-1 #tu byla zmiana
+                    operands[i] = labels[operands[i]]-1
                 else:
                     raise RuntimeError, "Nieznany kod operacji %r" % sig
         inst = assemblers[tuple(sig)](operands)
