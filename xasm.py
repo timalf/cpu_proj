@@ -2,8 +2,9 @@ import sys
 import argparse
 import re
 
-
+#wzorzec etykiety
 labelre = re.compile("([A-Z,a-z][A-Z,a-z,0-9]*):$")
+#wzorzec rozkazu
 statementre = re.compile("([A-Z,a-z]{2,4})")
 
 def parser(src):
@@ -12,7 +13,6 @@ def parser(src):
             line = line.strip()
             # ';' do komentarzy
             line = line.split(";")[0].strip()
-            # 1) A statement
             if not line:
                 # jesli pusta linia w kodzie
                 continue
@@ -32,6 +32,7 @@ def parser(src):
             # jesli nie rozpoznano zadnego z powyzszych
             raise SyntaxError, "Nie mozna rozpoznac jako rozkaz lub etykiete: %r" % line
 
+#wzorce typow operandow
 operand_type_re = [
     ("IMM",re.compile("#0x[0-9,a-f,A-F]+$")),
     ("MEM",re.compile("0x[0-9,a-f,A-F]+$")),
@@ -39,7 +40,7 @@ operand_type_re = [
     ("LBL",re.compile("([A-Z,a-z][A-Z,a-z,0-9]*)$")),
 ]
             
-
+#rozpoznawanie operandow
 def operand_type(operand):
     if not operand:
         return ""
@@ -48,9 +49,7 @@ def operand_type(operand):
             return code
     raise SyntaxError, "Nie mozna rozpoznac argumentu: %r" % operand
 
-#def encode_register(reg):
-#    return int(reg[1])
-
+#kodowanie kolejnych instrukcji
 def movRIMM(operands):
     inst = "000000"
     inst+= bin(int(operands[0][1]))[2:].zfill(2)
@@ -261,10 +260,12 @@ def assemble(src):
             sig = [opcode]
             for operand in operands:
                 sig.append(operand_type(operand))
+                print sig
             if "LBL" in sig:
                 #jesli etykieta w poleceniu
                 usedlabels.append((len(program),sig, operands))
                 program.append(0xdeadbeef)
+                print usedlabels
             else:
                 inst = assemblers[tuple(sig)](operands)
                 program.append(inst)
