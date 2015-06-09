@@ -1,4 +1,4 @@
-MOV R3,#0x03
+MOV R3,#0x05
 MOV 0x00,R3
 MOV R3,0x00
 CMP R3,#0x00
@@ -15,7 +15,7 @@ MOV R0,R1
 MOV R1,R2
 DEC R3
 CMP R3,#0x00
-JG zapis
+JE zapis
 JMP petla
 jeden:
 MOV R0,#0x01

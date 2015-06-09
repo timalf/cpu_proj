@@ -29,6 +29,7 @@ begin
 	variable temp2: STD_LOGIC_VECTOR (8 downto 0);
 	variable resv,resv3: STD_LOGIC_VECTOR (7 downto 0);
 	variable resv2: STD_LOGIC_VECTOR (15 downto 0);
+	variable do_cmp: STD_LOGIC_VECTOR (7 downto 0);
 	variable cfv, zfv, sfv, ovf: STD_LOGIC;
 
 	begin
@@ -157,18 +158,19 @@ begin
 	
 	--cmp
 	when "1101" =>
-	resv:=opA - opB;
+	resv:= opA;
+	do_cmp:=opA - opB;
 	if (opA=opB) then --czy rowne
 	cfv:='1';
 	zfv:='1';
 	sfv:='1';
 	ovf:='1';
-	elsif (opA /= opB and resv(7)='0') then --czywieksze
+	elsif (opA /= opB and do_cmp(7)='0') then --czywieksze
 	cfv:='1';
 	zfv:='0';
 	sfv:='0';
 	ovf:='0';
-	elsif (opA /= opB and resv(7)='1') then --czymniejsze
+	elsif (opA /= opB and do_cmp(7)='1') then --czymniejsze
 	cfv:='0';
 	zfv:='0';
 	sfv:='0';

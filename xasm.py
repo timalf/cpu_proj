@@ -239,10 +239,10 @@ assemblers = {
      ("CMP","REG","IMM"):cmpRIMM,
      ("CMP","REG","REG"):cmpREGR,
      ("CPL","REG"):cplREGR,
-     ("JMP","IMM"):jmpIMM,
-     ("JE","IMM"):jeIMM,
-     ("JG","IMM"):jgIMM,
-     ("JL","IMM"):jlIMM
+     ("JMP","LBL"):jmpIMM,
+     ("JE","LBL"):jeIMM,
+     ("JG","LBL"):jgIMM,
+     ("JL","LBL"):jlIMM
 }
 
 def assemble(src):
@@ -260,12 +260,10 @@ def assemble(src):
             sig = [opcode]
             for operand in operands:
                 sig.append(operand_type(operand))
-                print sig
             if "LBL" in sig:
                 #jesli etykieta w poleceniu
                 usedlabels.append((len(program),sig, operands))
                 program.append(0xdeadbeef)
-                print usedlabels
             else:
                 inst = assemblers[tuple(sig)](operands)
                 program.append(inst)
@@ -277,9 +275,12 @@ def assemble(src):
         #zamiana etykiety na adres
         for i,t in enumerate(sig[1:]):
             if t == "LBL":
-                sig[i+1] = "IMM"
+                #sig[i+1] = "IMM"
                 if sig[0] == "JMP" or sig[0]=="JG" or sig[0]=="JE" or sig[0]=="JL":
                     operands[i] = labels[operands[i]]-1
+                    if operands[i]<0:
+                        operands[i]=0
+                    print operands[i]
                 else:
                     raise RuntimeError, "Nieznany kod operacji %r" % sig
         inst = assemblers[tuple(sig)](operands)
